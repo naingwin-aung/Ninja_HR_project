@@ -24,6 +24,8 @@
     {{-- Datatables --}}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.2/css/bootstrap.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.11.3/css/dataTables.bootstrap4.min.css">
+    {{-- DateRangePicker --}}
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
     @yield('extra_css')
 </head>
 <body>
@@ -88,7 +90,7 @@
         </main>
         <div class="bottom_bar shadow">
             <div class="d-flex justify-content-center">
-                <div class="col-md-8">
+                <div class="col-md-8 px-4">
                     <div class="d-flex justify-content-between">
                         <div class="text-center">
                             <a href="{{route("home")}}">
@@ -134,32 +136,76 @@
     {{-- Datatables --}}
     <script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.11.3/js/dataTables.bootstrap4.min.js"></script>
+    {{-- DateRangePicker --}}
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    <!-- Laravel Javascript Validation -->
+    <script type="text/javascript" src="{{ asset('vendor/jsvalidation/js/jsvalidation.js')}}"></script>
+    {{-- Sweet Alert --}}
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
     @yield('script')
     <script>
         jQuery(function ($) {
-            $(".sidebar-dropdown > a").click(function() {
-                $(".sidebar-submenu").slideUp(200);
-                    if ($(this).parent().hasClass("active")) {
-                        $(".sidebar-dropdown").removeClass("active");
-                        $(this).parent().removeClass("active");
-                    } else {
-                        $(".sidebar-dropdown").removeClass("active");
-                        $(this).next(".sidebar-submenu").slideDown(200);
-                        $(this).parent().addClass("active");
-                    }
-                });
+          let token = document.head.querySelector('meta[name="csrf-token"]');
 
-                $("#close-sidebar").click(function(e) {
-                    e.preventDefault();
-                    $(".page-wrapper").removeClass("toggled");
-                    $("#show-sidebar").css('opacity', 1);
-                });
+          if(token) {
+            $.ajaxSetup({
+              headers : {
+                'X-CSRF-TOKEN' : token.content,
+              }
+            })
+          }
 
-                $("#show-sidebar").click(function(e) {
-                    e.preventDefault();
-                    $(".page-wrapper").addClass("toggled");
-                    $("#show-sidebar").css('opacity', 0);
-                });
+          $(".sidebar-dropdown > a").click(function() {
+            $(".sidebar-submenu").slideUp(200);
+                if ($(this).parent().hasClass("active")) {
+                    $(".sidebar-dropdown").removeClass("active");
+                    $(this).parent().removeClass("active");
+                } else {
+                    $(".sidebar-dropdown").removeClass("active");
+                    $(this).next(".sidebar-submenu").slideDown(200);
+                    $(this).parent().addClass("active");
+                }
+            });
+
+            $("#close-sidebar").click(function(e) {
+                e.preventDefault();
+                $(".page-wrapper").removeClass("toggled");
+                $("#show-sidebar").css('opacity', 1);
+            });
+
+            $("#show-sidebar").click(function(e) {
+                e.preventDefault();
+                $(".page-wrapper").addClass("toggled");
+                $("#show-sidebar").css('opacity', 0);
+            });
+
+            const Toast = Swal.mixin({
+              toast: true,
+              position: 'top-end',
+              showConfirmButton: false,
+              timer: 3000,
+              timerProgressBar: true,
+              didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer)
+                toast.addEventListener('mouseleave', Swal.resumeTimer)
+              }
+            })
+
+            @if(session('created')) 
+              Toast.fire({
+                icon: 'success',
+                title: '{{session('created')}}'
+              })
+            @endif
+
+            @if(session('updated')) 
+              Toast.fire({
+                icon: 'success',
+                title: '{{session('updated')}}'
+              })
+            @endif
         });
     </script>
 </body>
